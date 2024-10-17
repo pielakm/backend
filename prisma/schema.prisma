@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cities {
+  idcity       Int
+  city         String @db.VarChar(45)
+  FK_idcountry Int
+
+  @@id([idcity, FK_idcountry])
+}
+
+model comments {
+  idcomment    Int      @id
+  FK_idevent   Int
+  FK_iduser    Int
+  comment      String   @db.VarChar(512)
+  date_comment DateTime @db.Date
+}
+
+model country {
+  idcountry    Int    @id @unique(map: "idcountry_UNIQUE")
+  name_country String @db.VarChar(45)
+}
+
+model event {
+  idevent             Int       @unique(map: "id_event_UNIQUE")
+  name                String    @db.VarChar(45)
+  start_date          DateTime  @db.DateTime(0)
+  end_date            DateTime? @db.DateTime(0)
+  description         String?   @db.VarChar(45)
+  number_of_ticket    Int
+  photo               Bytes?    @db.Blob
+  contact_info        String    @db.VarChar(45)
+  FK_idevent_category Int
+  FK_idlocation       Int
+  status              Int       @db.TinyInt
+
+  @@id([idevent, FK_idlocation])
+}
+
+model event_category {
+  idevent_category Int    @id
+  category_type    String @db.VarChar(45)
+}
+
+model event_locations {
+  id_event_location Int
+  name              String @db.VarChar(45)
+  FK_idcity         Int
+
+  @@id([id_event_location, FK_idcity])
+}
+
+model event_ticket {
+  idevent_ticket Int
+  name           String?  @db.VarChar(45)
+  price          Float    @db.Float
+  start_date     DateTime @db.DateTime(0)
+  end_date       DateTime @db.DateTime(0)
+  FK_idevent     Int
+
+  @@id([idevent_ticket, FK_idevent])
+}
+
+model favourite_event {
+  idfavourite_event Int
+  FK_idevent        Int
+  FK_iduser         Int
+
+  @@id([idfavourite_event, FK_idevent])
+}
+
+model order {
+  idorder          Int
+  data             DateTime @db.Date
+  total_amount     Float    @db.Float
+  total_tax_amount Float    @db.Float
+  FK_iduser        Int
+
+  @@id([idorder, FK_iduser])
+}
+
+model order_ticket {
+  idorder_ticket     Int
+  FK_idevent_ticket  Int
+  FK_idorder         Int
+  FK_idticket_status Int
+
+  @@id([idorder_ticket, FK_idevent_ticket, FK_idorder, FK_idticket_status])
+}
+
+model payment {
+  idpayment            Int
+  FK_idorder           Int
+  FK_idpayment_methods Int
+  FK_idpayment_status  Int
+
+  @@id([idpayment, FK_idorder, FK_idpayment_methods, FK_idpayment_status])
+}
+
+model user {
+  iduser         Int     @default(autoincrement())
+  name           String  @db.VarChar(45)
+  second_name    String? @db.VarChar(45)
+  surname        String  @db.VarChar(45)
+  FK_iduser_type Int
+  email          String  @db.VarChar(45)
+  phonenumber    Int
+  zipcode        String  @db.VarChar(45)
+  street         String  @db.VarChar(45)
+  FK_idcity      Int
+  password       String  @db.VarChar(45)
+
+  @@id([iduser, FK_iduser_type, FK_idcity])
+}
+
+model user_type {
+  iduser_type Int    @id
+  name_type   String @db.VarChar(45)
+}
