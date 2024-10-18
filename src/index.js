@@ -1,55 +1,61 @@
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+import express from "express"
+import cors from "cors"
+import env from "dotenv"
+import path from "path"
+import helmet from "helmet"
+env.config()
 
-const prisma = new PrismaClient();
-const app = express();
+const app = express()
+const PORT = process.env.PORT;
+const users_controllers = express.Router()
 
-app.use(express.json());
+import { rateLimit } from "express-rate-limit"
 
-app.post('/signup', async (req, res) => {
-  const {
-    name, second_name, surname, FK_iduser_type, email, phonenumber,
-    zipcode, street, FK_idcity, password, posts // Extract posts from req.body
-  } = req.body;
-  
-  // Ensure posts are properly mapped or an empty array is passed
-  const postData = posts && posts.length > 0
-    ? posts.map((post) => ({
-        name: post.name,
-        surname: post.surname || undefined
-      }))
-    : [];
-
-  try {
-    // Create user with related posts
-    const result = await prisma.user.create({
-      data: {
-        name,
-        second_name,
-        surname,
-        FK_iduser_type,
-        email,
-        phonenumber,
-        zipcode,
-        street,
-        FK_idcity,
-        password,
-        posts: {
-          create: postData, // Create posts if there are any
-        },
-      },
-    });
-    
-    // Send back result in response
-    res.json(result);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "An error occurred during signup." });
-  }
-});
-
-
-const port = 5000
-app.listen(port, function() {
-  console.log(`Server is up and running on ${port}`)
+// RATE LIMIT, THE PROCESS OF LIMITING THE NUMBER OF USER/CLIENT REQUSET ON CERTAIN RESOURCES
+const limiter = rateLimit({
+ windowMs: 15 * 60 * 1000, //15 minutes
+ max: 100,
+ standardHeaders: true,
+ legacyHeaders: false,
+ message: "Too much pressing the screen please wait a while longer !!",
 })
+
+//  MIDDLEWARE
+app.use((req, res, next) => {
+ // WEBSITE YOU WISH TO ALLOW TO CONNECT
+ req.headers["Access-control-allow-origin"] = "*"
+
+ // REQUEST METHOD YOU WISH TO ALLOW
+ req.headers["Access-control-allow-methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+
+ // REQUEST HEADERS YOU WISH TO ALLOW
+ req.headers["Access-control-allow-headers"] = "Content-Type, Authorization"
+
+ // PASS TO NEXT LAYER OF MIDDLEWARE
+ next()
+})
+
+app.use(
+ cors({
+  origin: "*",
+ })
+)
+
+app.use(
+ helmet({
+  crossOriginResourcePolicy: false,
+ })
+)
+
+app.use(limiter)
+app.use(express.json({ limit: "100mb" }))
+app.use(express.urlencoded({ extended: false }))
+app.use(express.static(path.join(__dirname, "../static")))
+
+//  ROUTES
+app.use("/api", users_controllers)
+
+//  LISTENER
+app.listen(PORT, () => {
+    console.log(`Server is up and running on port ${PORT}`);
+  });
