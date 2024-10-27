@@ -1,15 +1,12 @@
-import { response, request, query } from "express"
+import { response, request } from "express"
 import jwt from "jsonwebtoken"
 import bcryptjs from "bcryptjs"
 import env from "dotenv"
 import cryptoJs from "crypto-js"
 import { UsersModels } from "../models/Models"
-import { connect } from "http2"
-
 env.config()
 
 const salt = bcryptjs.genSaltSync(10)
-
 
 //      CREATE USERS
 export const UsersCreate = async (req = request, res = response) => {
@@ -26,6 +23,8 @@ export const UsersCreate = async (req = request, res = response) => {
     idcity,
     password
   } = await req.body
+
+
   const checkUniqueEmail = await UsersModels.findFirst({
     where: {
       email: email,  // Finds the first user with this email
