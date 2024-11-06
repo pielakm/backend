@@ -10,7 +10,7 @@ const app = express()
 const PORT = process.env.PORT;
 import users_controllers from "./routes/UsersRoutes"
 import paymentmethod_controllers from "./routes/PaymentMethodRoutes"
-import  comments_controllers  from "./routes/CommentsRoutes"
+import comments_controllers  from "./routes/CommentsRoutes"
 import events_controllers from "./routes/EventsRoutes"
 import { rateLimit } from "express-rate-limit"
 

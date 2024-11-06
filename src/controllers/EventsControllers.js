@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import bcryptjs from "bcryptjs"
 import env from "dotenv"
 import cryptoJs from "crypto-js"
-import { EventsModels } from "../models/Models"
+import { EventsModels } from "../models/Models.js"
 env.config()
 
 const salt = bcryptjs.genSaltSync(10)
@@ -26,6 +26,7 @@ export const EventCreate = async (req = request, res = response) => {
 
     const createEvents = await EventModels.create({
         data: {
+            idevent,
             name, 
             start_date,
             end_date,
@@ -58,6 +59,7 @@ export const EventRead = async (req = request, res = response) => {
     try {
         const readEvents = await EventsModels.findMany({
             select: {
+                idevent: true,
                 name: true,
                 start_date: true,
                 end_date: true,
@@ -75,6 +77,46 @@ export const EventRead = async (req = request, res = response) => {
         res.status(200).json({
             success: true,
             msg: "Successfully read events!",
+            event: readEvents,
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        })
+    }
+}
+
+// Read Event by ID
+
+export const EventReadById = async (req = request, res = response) => {
+    try {
+        const { id } = req.params
+
+        const readEvents = await EventsModels.findUnique({
+            where: {
+                idevent: parseInt(id),
+            },
+            select: {
+                idevent: true,
+                name: true,
+                start_date: true,
+                end_date: true,
+                description: true,
+                number_of_ticket: true,
+                photo: true,
+                contact_info: true,
+                idevent_category: true,
+                idevent_location: true,
+                status: true,
+                is_seat_categorized: true
+            }
+        })
+
+        res.status(200).json({
+            success: true,
+            msg: "Successfully read event by id!",
             event: readEvents,
         })
 

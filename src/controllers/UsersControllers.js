@@ -212,7 +212,7 @@ export const UserRead = async (req = request, res = response) => {
   }
 };
 
-//      USERS UPDATE
+// USERS UPDATE
 
 export const UsersUpdate = async (req = request, res = response) => {
   try {
@@ -377,7 +377,6 @@ export const UserAuth = async (req = request, res = response) => {
     });
 
     //   const removePass = delete getUserData.password
-
     //   return res.status(200).json({
     //    success: true,
     //    query: getUserData
